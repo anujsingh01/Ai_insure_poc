@@ -1,0 +1,35 @@
+{
+  "name": "ai-insure",
+  "private": true,
+  "type": "module",
+  "packageManager": "npm@10.9.9",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "workspaces": [
+    "packages/*",
+    "services/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "nx run-many -t build",
+    "test": "nx run-many -t test",
+    "lint": "nx run-many -t lint",
+    "typecheck": "nx run-many -t typecheck",
+    "infra:up": "docker compose up -d",
+    "infra:down": "docker compose down",
+    "db:generate": "npm run generate -w @ai-insure/db",
+    "db:migrate": "npm run migrate -w @ai-insure/db",
+    "dev:api": "nx run @ai-insure/api:dev",
+    "dev:worker": "nx run @ai-insure/worker:dev",
+    "dev:web": "nx run @ai-insure/web:start",
+    "start:api": "node --env-file=.env services/api/dist/main.js",
+    "start:worker": "node --env-file=.env services/worker/dist/main.js"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "nx": "24.0.5",
+    "typescript": "~6.0.3",
+    "vitest": "^5.1.0"
+  }
+}

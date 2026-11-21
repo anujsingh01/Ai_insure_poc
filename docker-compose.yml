@@ -1,0 +1,42 @@
+# Local development infrastructure. Ports are offset to avoid clashing with other local stacks.
+name: ai-insure
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: app_owner
+      POSTGRES_PASSWORD: app_owner_dev
+      POSTGRES_DB: ai_insure
+      # Runtime role password, used by infra/docker/postgres-init.sh.
+      APP_USER_PASSWORD: app_user_dev
+    ports:
+      - "54320:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./infra/docker/postgres-init.sh:/docker-entrypoint-initdb.d/10-init.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app_owner -d ai_insure"]
+      interval: 5s
+      retries: 10
+
+  redis:
+    image: redis:7.4-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "63790:6379"
+    volumes:
+      - redisdata:/data
+
+  # S3-compatible object storage is added in M1 (document uploads).
+
+  # Catches all outgoing email in development. UI at http://localhost:8125
+  mailpit:
+    image: axllent/mailpit:v1.27
+    ports:
+      - "1125:1025"
+      - "8125:8025"
+
+volumes:
+  pgdata:
+  redisdata:

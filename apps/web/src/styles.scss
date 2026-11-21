@@ -1,0 +1,86 @@
+@use '@angular/material' as mat;
+
+// Design tokens shared with the wireframes.
+:root {
+  --ai-primary: #2f5bea;
+  --ai-primary-strong: #1e44c7;
+  --ai-primary-soft: #eef2fd;
+  --ai-ink: #14171c;
+  --ai-text: #2a303a;
+  --ai-muted: #5a6270;
+  --ai-border: #e3e6ea;
+  --ai-surface: #ffffff;
+  --ai-bg: #f1f3f5;
+  --ai-danger: #b91c1c;
+  --ai-success: #15803d;
+  --ai-radius: 10px;
+}
+
+html {
+  color-scheme: light;
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$blue-palette,
+        theme-type: light,
+      ),
+      typography: Inter,
+      density: -1,
+    )
+  );
+  @include mat.form-field-overrides((outlined-container-shape: 8px));
+  @include mat.button-overrides((filled-container-shape: 8px, outlined-container-shape: 8px, text-container-shape: 8px));
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: Inter, system-ui, sans-serif;
+  color: var(--ai-text);
+  background: var(--ai-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  color: var(--ai-ink);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+a {
+  color: var(--ai-primary);
+}
+
+.mat-icon,
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+}
+
+.card {
+  background: var(--ai-surface);
+  border: 1px solid var(--ai-border);
+  border-radius: var(--ai-radius);
+}
+
+.muted {
+  color: var(--ai-muted);
+}
+
+.error-text {
+  color: var(--ai-danger);
+  font-size: 13px;
+}
+
+.full-width {
+  width: 100%;
+}

@@ -1,0 +1,7 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "api", "runtimeExecutable": "npm", "runtimeArgs": ["run", "start:api"], "port": 3100 },
+    { "name": "web", "runtimeExecutable": "npm", "runtimeArgs": ["run", "start", "-w", "@ai-insure/web"], "port": 4200 }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "name": "@ai-insure/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "dev": "tsc -p tsconfig.build.json --watch --preserveWatchOutput & node --env-file-if-exists=../../.env --watch-path=dist dist/main.js",
+    "start": "node dist/main.js",
+    "test": "tsc -p tsconfig.build.json && vitest run"
+  },
+  "dependencies": {
+    "@ai-insure/db": "*",
+    "@ai-insure/shared": "*",
+    "@nestjs/common": "^12.4.0",
+    "@nestjs/core": "^12.4.0",
+    "@nestjs/platform-express": "^12.4.0",
+    "@nestjs/throttler": "^6.7.1",
+    "better-auth": "^1.7.18",
+    "bullmq": "^6.7.2",
+    "express": "^5.3.0",
+    "helmet": "^8.3.0",
+    "ioredis": "^6.0.0",
+    "nestjs-pino": "^5.3.1",
+    "pino": "^10.4.0",
+    "pino-http": "^11.0.0",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@nestjs/testing": "^12.4.0",
+    "@testcontainers/postgresql": "^12.2.1",
+    "@types/express": "^5.0.6",
+    "@types/pg": "^8.23.1",
+    "@types/supertest": "^7.2.1",
+    "auth": "^1.7.18",
+    "pg": "^8.23.1",
+    "pino-pretty": "^13.2.0",
+    "supertest": "^7.3.2",
+    "testcontainers": "^12.2.1"
+  }
+}
