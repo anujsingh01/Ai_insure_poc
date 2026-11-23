@@ -2,37 +2,8 @@ import type { Routes } from '@angular/router';
 import { signedIn, signedOut, withOrganization } from './core/guards';
 
 export const routes: Routes = [
-  {
-    path: '',
-    loadComponent: () => import('./auth/auth-layout').then((m) => m.AuthLayout),
-    canActivate: [signedOut],
-    children: [
-      { path: 'login', loadComponent: () => import('./auth/login').then((m) => m.Login), title: 'Sign in · AI Insure' },
-      { path: 'signup', loadComponent: () => import('./auth/signup').then((m) => m.Signup), title: 'Create account · AI Insure' },
-      {
-        path: 'forgot-password',
-        loadComponent: () => import('./auth/forgot-password').then((m) => m.ForgotPassword),
-        title: 'Reset password · AI Insure',
-      },
-      {
-        path: 'reset-password',
-        loadComponent: () => import('./auth/reset-password').then((m) => m.ResetPassword),
-        title: 'New password · AI Insure',
-      },
-    ],
-  },
-  {
-    path: 'onboarding',
-    loadComponent: () => import('./auth/auth-layout').then((m) => m.AuthLayout),
-    canActivate: [signedIn],
-    children: [
-      {
-        path: 'organization',
-        loadComponent: () => import('./onboarding/create-organization').then((m) => m.CreateOrganization),
-        title: 'Your company · AI Insure',
-      },
-    ],
-  },
+  // Console first: '/' must reach it (signed-out users are sent to /login by its guard). If the auth layout came
+  // first it would also match '/', and its signedOut guard would redirect signed-in users to '/' in a loop.
   {
     path: '',
     loadComponent: () => import('./console/shell').then((m) => m.Shell),
@@ -81,6 +52,37 @@ export const routes: Routes = [
         data: { title: 'Integrations', milestone: 'M3–M7', icon: 'hub' },
       },
       { path: 'settings/audit', loadComponent: () => import('./console/audit-log').then((m) => m.AuditLog), title: 'Audit log · AI Insure' },
+    ],
+  },
+  {
+    path: '',
+    loadComponent: () => import('./auth/auth-layout').then((m) => m.AuthLayout),
+    canActivate: [signedOut],
+    children: [
+      { path: 'login', loadComponent: () => import('./auth/login').then((m) => m.Login), title: 'Sign in · AI Insure' },
+      { path: 'signup', loadComponent: () => import('./auth/signup').then((m) => m.Signup), title: 'Create account · AI Insure' },
+      {
+        path: 'forgot-password',
+        loadComponent: () => import('./auth/forgot-password').then((m) => m.ForgotPassword),
+        title: 'Reset password · AI Insure',
+      },
+      {
+        path: 'reset-password',
+        loadComponent: () => import('./auth/reset-password').then((m) => m.ResetPassword),
+        title: 'New password · AI Insure',
+      },
+    ],
+  },
+  {
+    path: 'onboarding',
+    loadComponent: () => import('./auth/auth-layout').then((m) => m.AuthLayout),
+    canActivate: [signedIn],
+    children: [
+      {
+        path: 'organization',
+        loadComponent: () => import('./onboarding/create-organization').then((m) => m.CreateOrganization),
+        title: 'Your company · AI Insure',
+      },
     ],
   },
   { path: '**', redirectTo: '' },
