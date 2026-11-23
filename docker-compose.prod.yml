@@ -1,0 +1,93 @@
+# Azure VM deployment. Lives in /opt/ai-insure, settings in /opt/ai-insure/.env.
+# HTTPS and routing come from the shared Caddy in /opt/edge:
+#   <host>/api/*  -> ai-insure-api:3100        everything else -> ai-insure-web:80
+
+x-app-env: &app-env
+  NODE_ENV: production
+  DATABASE_URL: postgres://app_user:${APP_USER_PASSWORD}@postgres:5432/ai_insure
+  DATABASE_OWNER_URL: postgres://app_owner:${POSTGRES_PASSWORD}@postgres:5432/ai_insure
+  REDIS_URL: redis://redis:6379
+  API_PORT: "3100"
+  WEB_ORIGIN: https://${DOMAIN}
+  BETTER_AUTH_URL: https://${DOMAIN}
+  BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+  REQUIRE_EMAIL_VERIFICATION: ${REQUIRE_EMAIL_VERIFICATION:-false}
+  GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+  GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+  SMTP_HOST: ${SMTP_HOST:-localhost}
+  SMTP_PORT: ${SMTP_PORT:-1125}
+  SMTP_USER: ${SMTP_USER:-}
+  SMTP_PASS: ${SMTP_PASS:-}
+  MAIL_FROM: ${MAIL_FROM:-AI Insure <no-reply@ai-insure.local>}
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: app_owner
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ai_insure
+      APP_USER_PASSWORD: ${APP_USER_PASSWORD}   # used by postgres-init.sh, on the first start only
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres-init.sh:/docker-entrypoint-initdb.d/10-init.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app_owner -d ai_insure"]
+      interval: 5s
+      retries: 30
+
+  redis:
+    image: redis:7.4-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes: [redisdata:/data]
+
+  migrate:
+    image: ghcr.io/${GHCR_OWNER}/ai-insure-app:${IMAGE_TAG:-latest}
+    command: ["node", "packages/db/dist/migrate.js"]
+    environment: *app-env
+    depends_on:
+      postgres: { condition: service_healthy }
+    restart: "no"
+
+  api:
+    image: ghcr.io/${GHCR_OWNER}/ai-insure-app:${IMAGE_TAG:-latest}
+    command: ["node", "services/api/dist/main.js"]
+    restart: unless-stopped
+    environment: *app-env
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3100/api/health/live').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+    networks:
+      default:
+      edge:
+        aliases: [ai-insure-api]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      redis: { condition: service_started }
+
+  worker:
+    image: ghcr.io/${GHCR_OWNER}/ai-insure-app:${IMAGE_TAG:-latest}
+    command: ["node", "services/worker/dist/main.js"]
+    restart: unless-stopped
+    environment: *app-env
+    depends_on:
+      redis: { condition: service_started }
+
+  web:
+    image: ghcr.io/${GHCR_OWNER}/ai-insure-web:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    networks:
+      edge:
+        aliases: [ai-insure-web]
+
+networks:
+  edge:
+    external: true
+
+volumes:
+  pgdata:
+  redisdata:

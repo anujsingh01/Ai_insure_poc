@@ -1,0 +1,12 @@
+**/node_modules
+**/dist
+.angular
+.nx
+coverage
+.git
+.claude
+.env*
+!.env.example
+*.pdf
+*.md
+infra
